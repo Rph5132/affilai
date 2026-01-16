@@ -3,12 +3,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Textarea } from "@/components/ui/textarea";
 import { credentialsApi } from "@/services/api";
 import type { AffiliateCredential } from "@/types";
-import { CheckCircle2, ExternalLink } from "lucide-react";
+import { CheckCircle2, ExternalLink, Info } from "lucide-react";
 
 export function Settings() {
   const [credentials, setCredentials] = useState<Record<string, Partial<AffiliateCredential>>>({});
@@ -66,136 +68,210 @@ export function Settings() {
 
   if (loading) {
     return (
-      <div className="container mx-auto p-6">
-        <p>Loading settings...</p>
+      <div className="space-y-8 animate-fade-in">
+        <div className="space-y-2">
+          <Skeleton className="h-10 w-64" />
+          <Skeleton className="h-6 w-96" />
+        </div>
+        <Skeleton className="h-16 w-full" />
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-4 w-64" />
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-20 w-full" />
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-2">Affiliate Settings</h1>
-      <p className="text-muted-foreground mb-6">
-        Configure your affiliate program credentials to generate working tracking links
-      </p>
+    <div className="max-w-4xl space-y-8 animate-fade-in">
+      <div>
+        <h1 className="text-4xl font-bold tracking-tight mb-2">Affiliate Settings</h1>
+        <p className="text-lg text-muted-foreground">
+          Configure your affiliate program credentials to generate working tracking links
+        </p>
+      </div>
 
-      <Alert className="mb-6">
-        <AlertDescription>
+      <Alert className="border-info/50 bg-info/10">
+        <Info className="h-5 w-5 text-info" />
+        <AlertDescription className="ml-2">
           <strong>Getting Started:</strong> Enter your affiliate IDs below. Don't have affiliate accounts yet?
           Scroll down in each tab for step-by-step signup instructions.
         </AlertDescription>
       </Alert>
 
       <Tabs defaultValue="amazon" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="amazon">Amazon</TabsTrigger>
-          <TabsTrigger value="tiktok">TikTok</TabsTrigger>
-          <TabsTrigger value="instagram">Instagram</TabsTrigger>
-          <TabsTrigger value="youtube">YouTube</TabsTrigger>
-          <TabsTrigger value="pinterest">Pinterest</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-5 h-auto p-1 gap-1">
+          <TabsTrigger value="amazon" className="data-[state=active]:bg-orange-100 data-[state=active]:text-orange-700 dark:data-[state=active]:bg-orange-900/20 dark:data-[state=active]:text-orange-300">
+            Amazon
+          </TabsTrigger>
+          <TabsTrigger value="tiktok" className="data-[state=active]:bg-pink-100 data-[state=active]:text-pink-700 dark:data-[state=active]:bg-pink-900/20 dark:data-[state=active]:text-pink-300">
+            TikTok
+          </TabsTrigger>
+          <TabsTrigger value="instagram" className="data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700 dark:data-[state=active]:bg-purple-900/20 dark:data-[state=active]:text-purple-300">
+            Instagram
+          </TabsTrigger>
+          <TabsTrigger value="youtube" className="data-[state=active]:bg-red-100 data-[state=active]:text-red-700 dark:data-[state=active]:bg-red-900/20 dark:data-[state=active]:text-red-300">
+            YouTube
+          </TabsTrigger>
+          <TabsTrigger value="pinterest" className="data-[state=active]:bg-red-100 data-[state=active]:text-red-700 dark:data-[state=active]:bg-red-900/20 dark:data-[state=active]:text-red-300">
+            Pinterest
+          </TabsTrigger>
         </TabsList>
 
         {/* Amazon Tab */}
-        <TabsContent value="amazon" className="mt-6">
+        <TabsContent value="amazon" className="mt-8">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                Amazon Associates
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-12 w-12 rounded-lg bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center">
+                    <span className="text-2xl">📦</span>
+                  </div>
+                  <div>
+                    <CardTitle className="text-2xl flex items-center gap-2">
+                      Amazon Associates
+                    </CardTitle>
+                    <CardDescription className="text-base mt-1">
+                      Configure your Amazon Associates affiliate credentials
+                    </CardDescription>
+                  </div>
+                </div>
                 {credentials.amazon?.affiliate_id && (
-                  <CheckCircle2 className="h-5 w-5 text-green-500" />
+                  <Badge variant="success" className="gap-1.5">
+                    <CheckCircle2 className="h-4 w-4" />
+                    Configured
+                  </Badge>
                 )}
-              </CardTitle>
-              <CardDescription>
-                Configure your Amazon Associates affiliate credentials
-              </CardDescription>
+              </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="amazon_tag">Associate Tag (Tracking ID) *</Label>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="amazon_tag" className="text-sm font-semibold">
+                  Associate Tag (Tracking ID) <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   id="amazon_tag"
                   placeholder="yourname-20"
                   value={credentials.amazon?.affiliate_id || ""}
                   onChange={(e) => updateCredential("amazon", "affiliate_id", e.target.value)}
+                  className="h-11"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-muted-foreground flex items-start gap-1.5 mt-1.5">
+                  <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
                   Found in your Amazon Associates dashboard (format: yourname-20)
                 </p>
               </div>
 
-              <div>
-                <Label htmlFor="amazon_name">Account Name (Optional)</Label>
+              <div className="space-y-2">
+                <Label htmlFor="amazon_name" className="text-sm font-semibold">Account Name</Label>
                 <Input
                   id="amazon_name"
                   placeholder="My Amazon Associates Account"
                   value={credentials.amazon?.account_name || ""}
                   onChange={(e) => updateCredential("amazon", "account_name", e.target.value)}
+                  className="h-11"
                 />
               </div>
 
-              <div>
-                <Label htmlFor="amazon_notes">Notes (Optional)</Label>
+              <div className="space-y-2">
+                <Label htmlFor="amazon_notes" className="text-sm font-semibold">Notes</Label>
                 <Textarea
                   id="amazon_notes"
                   placeholder="Personal notes about this account"
                   value={credentials.amazon?.notes || ""}
                   onChange={(e) => updateCredential("amazon", "notes", e.target.value)}
                   rows={3}
+                  className="resize-none"
                 />
               </div>
 
-              <Button onClick={() => handleSave("amazon", credentials.amazon || {})} className="w-full">
+              <Button
+                onClick={() => handleSave("amazon", credentials.amazon || {})}
+                className="w-full"
+                size="lg"
+              >
                 Save Amazon Credentials
               </Button>
 
               {saveStatus?.platform === "amazon" && (
-                <Alert>
-                  <AlertDescription>{saveStatus.message}</AlertDescription>
+                <Alert className={saveStatus.message.includes("successfully") ? "border-success/50 bg-success/10" : "border-destructive/50 bg-destructive/10"}>
+                  <AlertDescription className="flex items-center gap-2">
+                    {saveStatus.message.includes("successfully") ? (
+                      <CheckCircle2 className="h-4 w-4 text-success" />
+                    ) : null}
+                    {saveStatus.message}
+                  </AlertDescription>
                 </Alert>
               )}
 
-              <div className="mt-6 p-4 bg-muted rounded-lg">
-                <h4 className="font-semibold mb-2 flex items-center gap-2">
-                  Don't have an Amazon Associates account?
-                </h4>
-                <ol className="list-decimal list-inside space-y-2 text-sm">
-                  <li>
-                    Visit{" "}
-                    <a
-                      href="https://affiliate-program.amazon.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary underline inline-flex items-center gap-1"
-                    >
-                      affiliate-program.amazon.com
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                  </li>
-                  <li>Sign up with your Amazon account (or create one)</li>
-                  <li>Complete your profile and tax information</li>
-                  <li>Wait for approval (usually 24-48 hours)</li>
-                  <li>Once approved, find your Associate Tag in the dashboard</li>
-                  <li>Copy your tag and paste it above</li>
-                </ol>
-                <p className="mt-3 text-xs text-muted-foreground">
-                  <strong>Requirements:</strong> Must be 18+, have a website or social media presence with content
-                </p>
-              </div>
+              <Card className="mt-6 border-dashed bg-muted/30">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Info className="h-5 w-5 text-muted-foreground" />
+                    Don't have an Amazon Associates account?
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ol className="list-decimal list-inside space-y-2.5 text-sm">
+                    <li className="pl-2">
+                      Visit{" "}
+                      <a
+                        href="https://affiliate-program.amazon.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary font-medium hover:underline inline-flex items-center gap-1"
+                      >
+                        affiliate-program.amazon.com
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                    </li>
+                    <li className="pl-2">Sign up with your Amazon account (or create one)</li>
+                    <li className="pl-2">Complete your profile and tax information</li>
+                    <li className="pl-2">Wait for approval (usually 24-48 hours)</li>
+                    <li className="pl-2">Once approved, find your Associate Tag in the dashboard</li>
+                    <li className="pl-2">Copy your tag and paste it above</li>
+                  </ol>
+                  <div className="mt-4 pt-4 border-t">
+                    <p className="text-xs text-muted-foreground">
+                      <strong className="text-foreground">Requirements:</strong> Must be 18+, have a website or social media presence with content
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
             </CardContent>
           </Card>
         </TabsContent>
 
         {/* TikTok Tab */}
-        <TabsContent value="tiktok" className="mt-6">
+        <TabsContent value="tiktok" className="mt-8">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                TikTok Shop
-                {credentials.tiktok?.shop_id && <CheckCircle2 className="h-5 w-5 text-green-500" />}
-              </CardTitle>
-              <CardDescription>Configure your TikTok Shop Creator/Affiliate credentials</CardDescription>
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-12 w-12 rounded-lg bg-pink-100 dark:bg-pink-900/20 flex items-center justify-center">
+                    <span className="text-2xl">🎵</span>
+                  </div>
+                  <div>
+                    <CardTitle className="text-2xl">TikTok Shop</CardTitle>
+                    <CardDescription className="text-base mt-1">Configure your TikTok Shop Creator/Affiliate credentials</CardDescription>
+                  </div>
+                </div>
+                {credentials.tiktok?.shop_id && (
+                  <Badge variant="success" className="gap-1.5">
+                    <CheckCircle2 className="h-4 w-4" />
+                    Configured
+                  </Badge>
+                )}
+              </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               <div>
                 <Label htmlFor="tiktok_shop_id">Shop ID *</Label>
                 <Input
