@@ -11,6 +11,15 @@ pub struct Product {
     pub trending_score: Option<i32>,
     pub notes: Option<String>,
     pub image_url: Option<String>,
+
+    // Affiliate platform identifiers
+    pub amazon_asin: Option<String>,
+    pub tiktok_product_id: Option<String>,
+    pub instagram_product_id: Option<String>,
+    pub youtube_video_id: Option<String>,
+    pub pinterest_pin_id: Option<String>,
+    pub product_url: Option<String>,
+
     pub created_at: Option<String>,
     pub updated_at: Option<String>,
 }
@@ -25,6 +34,14 @@ pub struct CreateProductInput {
     pub trending_score: Option<i32>,
     pub notes: Option<String>,
     pub image_url: Option<String>,
+
+    // Affiliate platform identifiers
+    pub amazon_asin: Option<String>,
+    pub tiktok_product_id: Option<String>,
+    pub instagram_product_id: Option<String>,
+    pub youtube_video_id: Option<String>,
+    pub pinterest_pin_id: Option<String>,
+    pub product_url: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -38,4 +55,12 @@ pub struct UpdateProductInput {
     pub trending_score: Option<i32>,
     pub notes: Option<String>,
     pub image_url: Option<String>,
+
+    // Affiliate platform identifiers
+    pub amazon_asin: Option<String>,
+    pub tiktok_product_id: Option<String>,
+    pub instagram_product_id: Option<String>,
+    pub youtube_video_id: Option<String>,
+    pub pinterest_pin_id: Option<String>,
+    pub product_url: Option<String>,
 }

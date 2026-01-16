@@ -1,6 +1,5 @@
 use rusqlite::{Connection, Result};
-use std::path::PathBuf;
-use tauri::AppHandle;
+use tauri::{AppHandle, Manager};
 
 pub mod schema;
 

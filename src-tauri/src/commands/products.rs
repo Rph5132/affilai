@@ -1,7 +1,7 @@
 use crate::database::get_connection;
 use crate::models::product::{CreateProductInput, Product, UpdateProductInput};
 use rusqlite::params;
-use tauri::{AppHandle, State};
+use tauri::AppHandle;
 
 #[tauri::command]
 pub async fn get_all_products(app_handle: AppHandle) -> Result<Vec<Product>, String> {
@@ -10,7 +10,9 @@ pub async fn get_all_products(app_handle: AppHandle) -> Result<Vec<Product>, Str
     let mut stmt = conn
         .prepare(
             "SELECT id, name, category, description, price_range, target_audience,
-             trending_score, notes, image_url, created_at, updated_at
+             trending_score, notes, image_url, amazon_asin, tiktok_product_id,
+             instagram_product_id, youtube_video_id, pinterest_pin_id, product_url,
+             created_at, updated_at
              FROM products ORDER BY trending_score DESC, name ASC",
         )
         .map_err(|e| e.to_string())?;
@@ -27,8 +29,14 @@ pub async fn get_all_products(app_handle: AppHandle) -> Result<Vec<Product>, Str
                 trending_score: row.get(6)?,
                 notes: row.get(7)?,
                 image_url: row.get(8)?,
-                created_at: row.get(9)?,
-                updated_at: row.get(10)?,
+                amazon_asin: row.get(9)?,
+                tiktok_product_id: row.get(10)?,
+                instagram_product_id: row.get(11)?,
+                youtube_video_id: row.get(12)?,
+                pinterest_pin_id: row.get(13)?,
+                product_url: row.get(14)?,
+                created_at: row.get(15)?,
+                updated_at: row.get(16)?,
             })
         })
         .map_err(|e| e.to_string())?
@@ -45,7 +53,9 @@ pub async fn get_product_by_id(app_handle: AppHandle, id: i64) -> Result<Product
     let product = conn
         .query_row(
             "SELECT id, name, category, description, price_range, target_audience,
-             trending_score, notes, image_url, created_at, updated_at
+             trending_score, notes, image_url, amazon_asin, tiktok_product_id,
+             instagram_product_id, youtube_video_id, pinterest_pin_id, product_url,
+             created_at, updated_at
              FROM products WHERE id = ?1",
             params![id],
             |row| {
@@ -59,8 +69,14 @@ pub async fn get_product_by_id(app_handle: AppHandle, id: i64) -> Result<Product
                     trending_score: row.get(6)?,
                     notes: row.get(7)?,
                     image_url: row.get(8)?,
-                    created_at: row.get(9)?,
-                    updated_at: row.get(10)?,
+                    amazon_asin: row.get(9)?,
+                    tiktok_product_id: row.get(10)?,
+                    instagram_product_id: row.get(11)?,
+                    youtube_video_id: row.get(12)?,
+                    pinterest_pin_id: row.get(13)?,
+                    product_url: row.get(14)?,
+                    created_at: row.get(15)?,
+                    updated_at: row.get(16)?,
                 })
             },
         )
@@ -78,8 +94,9 @@ pub async fn create_product(
 
     conn.execute(
         "INSERT INTO products (name, category, description, price_range, target_audience,
-         trending_score, notes, image_url)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+         trending_score, notes, image_url, amazon_asin, tiktok_product_id,
+         instagram_product_id, youtube_video_id, pinterest_pin_id, product_url)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)",
         params![
             input.name,
             input.category,
@@ -89,6 +106,12 @@ pub async fn create_product(
             input.trending_score.unwrap_or(0),
             input.notes,
             input.image_url,
+            input.amazon_asin,
+            input.tiktok_product_id,
+            input.instagram_product_id,
+            input.youtube_video_id,
+            input.pinterest_pin_id,
+            input.product_url,
         ],
     )
     .map_err(|e| e.to_string())?;
@@ -102,63 +125,91 @@ pub async fn update_product(
     app_handle: AppHandle,
     input: UpdateProductInput,
 ) -> Result<Product, String> {
-    let conn = get_connection(&app_handle).map_err(|e| e.to_string())?;
+    let product_id = input.id;
 
-    // Build dynamic UPDATE query based on provided fields
-    let mut updates = Vec::new();
-    let mut params_vec: Vec<Box<dyn rusqlite::ToSql>> = Vec::new();
+    {
+        let conn = get_connection(&app_handle).map_err(|e| e.to_string())?;
 
-    if let Some(name) = input.name {
-        updates.push("name = ?");
-        params_vec.push(Box::new(name));
-    }
-    if let Some(category) = input.category {
-        updates.push("category = ?");
-        params_vec.push(Box::new(category));
-    }
-    if let Some(description) = input.description {
-        updates.push("description = ?");
-        params_vec.push(Box::new(description));
-    }
-    if let Some(price_range) = input.price_range {
-        updates.push("price_range = ?");
-        params_vec.push(Box::new(price_range));
-    }
-    if let Some(target_audience) = input.target_audience {
-        updates.push("target_audience = ?");
-        params_vec.push(Box::new(target_audience));
-    }
-    if let Some(trending_score) = input.trending_score {
-        updates.push("trending_score = ?");
-        params_vec.push(Box::new(trending_score));
-    }
-    if let Some(notes) = input.notes {
-        updates.push("notes = ?");
-        params_vec.push(Box::new(notes));
-    }
-    if let Some(image_url) = input.image_url {
-        updates.push("image_url = ?");
-        params_vec.push(Box::new(image_url));
+        // Build dynamic UPDATE query based on provided fields
+        let mut updates = Vec::new();
+        let mut params_vec: Vec<Box<dyn rusqlite::ToSql>> = Vec::new();
+
+        if let Some(name) = input.name {
+            updates.push("name = ?");
+            params_vec.push(Box::new(name));
+        }
+        if let Some(category) = input.category {
+            updates.push("category = ?");
+            params_vec.push(Box::new(category));
+        }
+        if let Some(description) = input.description {
+            updates.push("description = ?");
+            params_vec.push(Box::new(description));
+        }
+        if let Some(price_range) = input.price_range {
+            updates.push("price_range = ?");
+            params_vec.push(Box::new(price_range));
+        }
+        if let Some(target_audience) = input.target_audience {
+            updates.push("target_audience = ?");
+            params_vec.push(Box::new(target_audience));
+        }
+        if let Some(trending_score) = input.trending_score {
+            updates.push("trending_score = ?");
+            params_vec.push(Box::new(trending_score));
+        }
+        if let Some(notes) = input.notes {
+            updates.push("notes = ?");
+            params_vec.push(Box::new(notes));
+        }
+        if let Some(image_url) = input.image_url {
+            updates.push("image_url = ?");
+            params_vec.push(Box::new(image_url));
+        }
+        if let Some(amazon_asin) = input.amazon_asin {
+            updates.push("amazon_asin = ?");
+            params_vec.push(Box::new(amazon_asin));
+        }
+        if let Some(tiktok_product_id) = input.tiktok_product_id {
+            updates.push("tiktok_product_id = ?");
+            params_vec.push(Box::new(tiktok_product_id));
+        }
+        if let Some(instagram_product_id) = input.instagram_product_id {
+            updates.push("instagram_product_id = ?");
+            params_vec.push(Box::new(instagram_product_id));
+        }
+        if let Some(youtube_video_id) = input.youtube_video_id {
+            updates.push("youtube_video_id = ?");
+            params_vec.push(Box::new(youtube_video_id));
+        }
+        if let Some(pinterest_pin_id) = input.pinterest_pin_id {
+            updates.push("pinterest_pin_id = ?");
+            params_vec.push(Box::new(pinterest_pin_id));
+        }
+        if let Some(product_url) = input.product_url {
+            updates.push("product_url = ?");
+            params_vec.push(Box::new(product_url));
+        }
+
+        if updates.is_empty() {
+            return Err("No fields to update".to_string());
+        }
+
+        updates.push("updated_at = CURRENT_TIMESTAMP");
+        params_vec.push(Box::new(product_id));
+
+        let query = format!(
+            "UPDATE products SET {} WHERE id = ?",
+            updates.join(", ")
+        );
+
+        let params_refs: Vec<&dyn rusqlite::ToSql> = params_vec.iter().map(|b| &**b as &dyn rusqlite::ToSql).collect();
+
+        conn.execute(&query, params_refs.as_slice())
+            .map_err(|e| e.to_string())?;
     }
 
-    if updates.is_empty() {
-        return Err("No fields to update".to_string());
-    }
-
-    updates.push("updated_at = CURRENT_TIMESTAMP");
-    params_vec.push(Box::new(input.id));
-
-    let query = format!(
-        "UPDATE products SET {} WHERE id = ?",
-        updates.join(", ")
-    );
-
-    let params_refs: Vec<&dyn rusqlite::ToSql> = params_vec.iter().map(|b| &**b as &dyn rusqlite::ToSql).collect();
-
-    conn.execute(&query, params_refs.as_slice())
-        .map_err(|e| e.to_string())?;
-
-    get_product_by_id(app_handle, input.id).await
+    get_product_by_id(app_handle, product_id).await
 }
 
 #[tauri::command]
@@ -182,7 +233,9 @@ pub async fn search_products(
     let mut stmt = conn
         .prepare(
             "SELECT id, name, category, description, price_range, target_audience,
-             trending_score, notes, image_url, created_at, updated_at
+             trending_score, notes, image_url, amazon_asin, tiktok_product_id,
+             instagram_product_id, youtube_video_id, pinterest_pin_id, product_url,
+             created_at, updated_at
              FROM products
              WHERE name LIKE ?1 OR category LIKE ?1 OR description LIKE ?1
              ORDER BY trending_score DESC, name ASC",
@@ -201,8 +254,14 @@ pub async fn search_products(
                 trending_score: row.get(6)?,
                 notes: row.get(7)?,
                 image_url: row.get(8)?,
-                created_at: row.get(9)?,
-                updated_at: row.get(10)?,
+                amazon_asin: row.get(9)?,
+                tiktok_product_id: row.get(10)?,
+                instagram_product_id: row.get(11)?,
+                youtube_video_id: row.get(12)?,
+                pinterest_pin_id: row.get(13)?,
+                product_url: row.get(14)?,
+                created_at: row.get(15)?,
+                updated_at: row.get(16)?,
             })
         })
         .map_err(|e| e.to_string())?

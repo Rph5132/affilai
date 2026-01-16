@@ -15,6 +15,21 @@ pub fn run_migrations(conn: &Connection) -> Result<()> {
     conn.execute_batch(schema_sql)?;
     println!("✓ Schema migration completed");
 
+    // Run affiliate links extension migration
+    let affiliate_links_sql = include_str!("../../../migrations/003_affiliate_links_extension.sql");
+    conn.execute_batch(affiliate_links_sql)?;
+    println!("✓ Affiliate links extension migration completed");
+
+    // Run platform support migration
+    let platform_sql = include_str!("../../../migrations/004_add_platform_to_links.sql");
+    conn.execute_batch(platform_sql)?;
+    println!("✓ Platform support migration completed");
+
+    // Run affiliate credentials migration
+    let credentials_sql = include_str!("../../../migrations/005_affiliate_credentials.sql");
+    conn.execute_batch(credentials_sql)?;
+    println!("✓ Affiliate credentials migration completed");
+
     // Check if seed data has been run
     if migrations_table_exists {
         let seed_run: bool = conn

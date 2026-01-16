@@ -3,12 +3,15 @@ import { productApi } from "@/services/api";
 import type { Product } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Search, Package } from "lucide-react";
+import { Plus, Search, Package, Edit, Trash2 } from "lucide-react";
+import { ProductForm } from "@/components/ProductForm";
 
 export function Products() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     loadProducts();
@@ -28,6 +31,32 @@ export function Products() {
     }
   };
 
+  const handleAddProduct = () => {
+    setEditingProduct(null);
+    setFormOpen(true);
+  };
+
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product);
+    setFormOpen(true);
+  };
+
+  const handleDeleteProduct = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this product?")) return;
+
+    try {
+      await productApi.delete(id);
+      await loadProducts();
+    } catch (err) {
+      console.error("Error deleting product:", err);
+      alert("Failed to delete product");
+    }
+  };
+
+  const handleFormSuccess = () => {
+    loadProducts();
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -38,7 +67,7 @@ export function Products() {
             Manage your trending affiliate products
           </p>
         </div>
-        <Button>
+        <Button onClick={handleAddProduct}>
           <Plus className="mr-2 h-4 w-4" />
           Add Product
         </Button>
@@ -80,7 +109,7 @@ export function Products() {
             <p className="mb-4 text-sm text-muted-foreground">
               Get started by adding your first product
             </p>
-            <Button>
+            <Button onClick={handleAddProduct}>
               <Plus className="mr-2 h-4 w-4" />
               Add Product
             </Button>
@@ -104,7 +133,7 @@ export function Products() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {product.description && (
                     <p className="text-sm text-muted-foreground line-clamp-2">
                       {product.description}
@@ -120,12 +149,52 @@ export function Products() {
                       Target: {product.target_audience}
                     </p>
                   )}
+
+                  {/* Affiliate IDs indicator */}
+                  {(product.amazon_asin || product.product_url) && (
+                    <div className="pt-2 border-t">
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        {product.amazon_asin && <span className="inline-flex items-center gap-1 bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 px-2 py-0.5 rounded text-xs">Amazon</span>}
+                        {product.tiktok_product_id && <span className="inline-flex items-center gap-1 bg-pink-100 dark:bg-pink-900/20 text-pink-700 dark:text-pink-300 px-2 py-0.5 rounded text-xs">TikTok</span>}
+                        {product.instagram_product_id && <span className="inline-flex items-center gap-1 bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded text-xs">Instagram</span>}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Action buttons */}
+                  <div className="flex gap-2 pt-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEditProduct(product)}
+                      className="flex-1"
+                    >
+                      <Edit className="mr-1 h-3 w-3" />
+                      Edit
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => product.id && handleDeleteProduct(product.id)}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
       )}
+
+      {/* Product Form Dialog */}
+      <ProductForm
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        product={editingProduct}
+        onSuccess={handleFormSuccess}
+      />
     </div>
   );
 }

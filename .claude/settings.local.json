@@ -2,7 +2,16 @@
   "permissions": {
     "allow": [
       "Bash(npm create:*)",
-      "Read(//c/**)"
+      "Read(//c/**)",
+      "Bash(powershell -Command \"Get-PSDrive C | Select-Object Used,Free\")",
+      "Bash(powershell:*)",
+      "Bash(du -sh:*)",
+      "Bash(while read dir)",
+      "Bash(find:*)",
+      "Bash(timeout 45 cmd /c \"type C:\\\\Users\\\\Ryan\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--afilai\\\\tasks\\\\b05b564.output\")",
+      "Bash(timeout 45 cmd:*)",
+      "Bash(timeout 10 cmd:*)",
+      "Bash(sqlite3 \"%APPDATA%\\\\com.affilai.dev\\\\affilai.db\" \"SELECT product_name, platform, program_name, commission_rate, audience_match_score FROM affiliate_links INNER JOIN \\(SELECT id, name FROM products\\) p ON affiliate_links.product_id = p.id LIMIT 10;\")"
     ]
   }
 }

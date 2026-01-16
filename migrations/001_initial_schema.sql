@@ -186,8 +186,6 @@ CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
 CREATE INDEX IF NOT EXISTS idx_campaigns_product ON campaigns(product_id);
 CREATE INDEX IF NOT EXISTS idx_campaigns_platform ON campaigns(platform);
 CREATE INDEX IF NOT EXISTS idx_campaigns_status ON campaigns(status);
-CREATE INDEX IF NOT EXISTS idx_links_product ON affiliate_links(product_id);
-CREATE INDEX IF NOT EXISTS idx_links_program ON affiliate_links(program_id);
 CREATE INDEX IF NOT EXISTS idx_performance_date ON performance_records(date);
 CREATE INDEX IF NOT EXISTS idx_performance_link ON performance_records(link_id);
 CREATE INDEX IF NOT EXISTS idx_performance_campaign ON performance_records(campaign_id);

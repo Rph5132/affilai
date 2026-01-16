@@ -2,8 +2,9 @@
 mod commands;
 mod database;
 mod models;
+mod services;
 
-use commands::products;
+use commands::{affiliate_links, credentials, products};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -25,6 +26,19 @@ pub fn run() {
             products::update_product,
             products::delete_product,
             products::search_products,
+            affiliate_links::get_all_affiliate_links,
+            affiliate_links::get_links_by_product,
+            affiliate_links::discover_affiliate_programs,
+            affiliate_links::generate_affiliate_link,
+            affiliate_links::generate_link_for_platform,
+            affiliate_links::create_affiliate_link,
+            affiliate_links::refresh_affiliate_link,
+            affiliate_links::delete_affiliate_link,
+            affiliate_links::generate_links_for_all_products,
+            credentials::get_all_credentials,
+            credentials::get_credential_by_platform,
+            credentials::save_credential,
+            credentials::delete_credential,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
