@@ -17,7 +17,12 @@
       "Bash(/opt/homebrew/bin/npx tsc --noEmit)",
       "Bash(export PATH=\"/opt/homebrew/bin:$PATH\")",
       "Bash(node --version)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(gh auth status:*)",
+      "Bash(ssh-keygen:*)",
+      "Bash(pbcopy)",
+      "Bash(git remote:*)",
+      "Bash(ssh:*)"
     ]
   }
 }
