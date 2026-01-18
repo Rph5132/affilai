@@ -1,4 +1,3 @@
-import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,10 +12,14 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import { useState, useEffect } from "react";
 import { useLayout } from "@/contexts/LayoutContext";
+import { useThemeToggle } from "@/hooks/useThemeToggle";
+import { NavigationList, type NavItem } from "./NavigationItem";
 
-const navigation = [
+/**
+ * Navigation configuration
+ */
+const navigation: NavItem[] = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "Products", href: "/products", icon: Package },
   { name: "Links", href: "/links", icon: LinkIcon },
@@ -24,26 +27,21 @@ const navigation = [
   { name: "Analytics", href: "/analytics", icon: BarChart3 },
 ];
 
-const secondaryNav = [
+const secondaryNav: NavItem[] = [
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 
+/**
+ * Sidebar - Refactored for clarity
+ *
+ * Changes:
+ * - Extracted useThemeToggle hook for theme management
+ * - Extracted NavigationList component to eliminate duplication
+ * - Cleaner separation of navigation data from rendering
+ */
 export function Sidebar() {
-  const location = useLocation();
   const { isSidebarOpen, setSidebarOpen, toggleSidebar } = useLayout();
-  const [isDark, setIsDark] = useState(false);
-
-  // Check initial dark mode state from system/localStorage
-  useEffect(() => {
-    const isDarkMode = document.documentElement.classList.contains("dark");
-    setIsDark(isDarkMode);
-  }, []);
-
-  const toggleDarkMode = () => {
-    setIsDark(!isDark);
-    document.documentElement.classList.toggle("dark");
-    localStorage.setItem("theme", !isDark ? "dark" : "light");
-  };
+  const { isDark, toggleTheme } = useThemeToggle();
 
   const closeSidebar = () => setSidebarOpen(false);
 
@@ -81,65 +79,16 @@ export function Sidebar() {
           </div>
         </div>
 
-        {/* Primary Navigation */}
+        {/* Navigation */}
         <nav className="flex-1 space-y-1 px-3 py-6">
-          <div className="space-y-1">
-            {navigation.map((item) => {
-              const isActive = location.pathname === item.href;
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  onClick={closeSidebar}
-                  className={cn(
-                    "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                    isActive
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground hover:shadow-sm"
-                  )}
-                >
-                  <item.icon
-                    className={cn(
-                      "h-5 w-5 transition-transform duration-200",
-                      isActive ? "" : "group-hover:scale-110"
-                    )}
-                  />
-                  {item.name}
-                </Link>
-              );
-            })}
-          </div>
+          {/* Primary Navigation */}
+          <NavigationList items={navigation} onItemClick={closeSidebar} />
 
           {/* Divider */}
           <div className="my-4 border-t" />
 
           {/* Secondary Navigation */}
-          <div className="space-y-1">
-            {secondaryNav.map((item) => {
-              const isActive = location.pathname === item.href;
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  onClick={closeSidebar}
-                  className={cn(
-                    "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                    isActive
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground hover:shadow-sm"
-                  )}
-                >
-                  <item.icon
-                    className={cn(
-                      "h-5 w-5 transition-transform duration-200",
-                      isActive ? "" : "group-hover:scale-110"
-                    )}
-                  />
-                  {item.name}
-                </Link>
-              );
-            })}
-          </div>
+          <NavigationList items={secondaryNav} onItemClick={closeSidebar} />
         </nav>
 
         {/* Footer with dark mode toggle */}
@@ -147,7 +96,7 @@ export function Sidebar() {
           <Button
             variant="outline"
             size="sm"
-            onClick={toggleDarkMode}
+            onClick={toggleTheme}
             className="w-full justify-start gap-2"
           >
             {isDark ? (
