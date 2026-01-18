@@ -9,7 +9,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Link as LinkIcon,
@@ -19,9 +18,9 @@ import {
   Sparkles,
   ExternalLink,
   CheckCircle2,
-  XCircle,
   Clock,
 } from "lucide-react";
+import { getStatusBadge, getPlatformBadge } from "@/lib/badge-utils";
 
 export function Links() {
   const [links, setLinks] = useState<AffiliateLink[]>([]);
@@ -120,29 +119,6 @@ export function Links() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete link");
     }
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "active":
-        return <Badge variant="success" className="gap-1"><CheckCircle2 className="h-3 w-3" />Active</Badge>;
-      case "expired":
-        return <Badge variant="warning" className="gap-1"><Clock className="h-3 w-3" />Expired</Badge>;
-      case "invalid":
-        return <Badge variant="destructive" className="gap-1"><XCircle className="h-3 w-3" />Invalid</Badge>;
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
-    }
-  };
-
-  const getPlatformBadge = (platform: string) => {
-    const platformLower = platform.toLowerCase();
-    if (platformLower.includes("amazon")) return <Badge variant="amazon">Amazon</Badge>;
-    if (platformLower.includes("tiktok")) return <Badge variant="tiktok">TikTok</Badge>;
-    if (platformLower.includes("instagram")) return <Badge variant="instagram">Instagram</Badge>;
-    if (platformLower.includes("youtube")) return <Badge variant="youtube">YouTube</Badge>;
-    if (platformLower.includes("pinterest")) return <Badge variant="pinterest">Pinterest</Badge>;
-    return <Badge variant="secondary">{platform}</Badge>;
   };
 
   const productsWithoutLinks = products.filter(
