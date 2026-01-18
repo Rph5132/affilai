@@ -4,7 +4,7 @@ mod database;
 mod models;
 mod services;
 
-use commands::{affiliate_links, credentials, products};
+use commands::{ad_generation, affiliate_links, credentials, products};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -39,6 +39,8 @@ pub fn run() {
             credentials::get_credential_by_platform,
             credentials::save_credential,
             credentials::delete_credential,
+            ad_generation::generate_ad_for_product,
+            ad_generation::get_ads_for_product,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

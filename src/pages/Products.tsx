@@ -5,8 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, Package, Edit, Trash2, TrendingUp } from "lucide-react";
+import { Plus, Search, Package, Edit, Trash2, TrendingUp, Sparkles } from "lucide-react";
 import { ProductForm } from "@/components/ProductForm";
+import { AdGenerationModal } from "@/components/AdGenerationModal";
 
 export function Products() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -14,6 +15,8 @@ export function Products() {
   const [error, setError] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [adModalOpen, setAdModalOpen] = useState(false);
+  const [selectedProductForAd, setSelectedProductForAd] = useState<Product | null>(null);
 
   useEffect(() => {
     loadProducts();
@@ -57,6 +60,16 @@ export function Products() {
 
   const handleFormSuccess = () => {
     loadProducts();
+  };
+
+  const handleGenerateAd = (product: Product) => {
+    setSelectedProductForAd(product);
+    setAdModalOpen(true);
+  };
+
+  const handleAdSuccess = (ad: { headline: string; body: string; cta: string }) => {
+    console.log("Ad saved:", ad);
+    // TODO: Save ad to database or handle as needed
   };
 
   return (
@@ -196,6 +209,15 @@ export function Products() {
                     <Button
                       variant="outline"
                       size="sm"
+                      onClick={() => handleGenerateAd(product)}
+                      className="text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
+                      title="Generate Ad"
+                    >
+                      <Sparkles className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => handleEditProduct(product)}
                       className="flex-1 group-hover:border-primary/50 transition-colors"
                     >
@@ -224,6 +246,14 @@ export function Products() {
         onOpenChange={setFormOpen}
         product={editingProduct}
         onSuccess={handleFormSuccess}
+      />
+
+      {/* Ad Generation Modal */}
+      <AdGenerationModal
+        open={adModalOpen}
+        onOpenChange={setAdModalOpen}
+        product={selectedProductForAd}
+        onSuccess={handleAdSuccess}
       />
     </div>
   );

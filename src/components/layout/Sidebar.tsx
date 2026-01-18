@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useLayout } from "@/contexts/LayoutContext";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -29,8 +30,8 @@ const secondaryNav = [
 
 export function Sidebar() {
   const location = useLocation();
+  const { isSidebarOpen, setSidebarOpen, toggleSidebar } = useLayout();
   const [isDark, setIsDark] = useState(false);
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   // Check initial dark mode state from system/localStorage
   useEffect(() => {
@@ -41,27 +42,32 @@ export function Sidebar() {
   const toggleDarkMode = () => {
     setIsDark(!isDark);
     document.documentElement.classList.toggle("dark");
-    // Persist preference to localStorage
     localStorage.setItem("theme", !isDark ? "dark" : "light");
   };
+
+  const closeSidebar = () => setSidebarOpen(false);
 
   return (
     <>
       {/* Mobile menu button */}
       <Button
-        variant="ghost"
+        variant="outline"
         size="icon"
-        className="fixed top-4 left-4 z-50 lg:hidden"
-        onClick={() => setIsMobileOpen(!isMobileOpen)}
+        className="fixed top-4 left-4 z-[60] lg:hidden bg-white dark:bg-slate-900 shadow-lg border-border"
+        onClick={toggleSidebar}
       >
-        {isMobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        {isSidebarOpen ? (
+          <X className="h-5 w-5" />
+        ) : (
+          <Menu className="h-5 w-5" />
+        )}
       </Button>
 
       {/* Sidebar */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 flex h-full w-64 flex-col border-r bg-background shadow-2xl transition-transform duration-300 lg:translate-x-0 lg:shadow-none lg:z-0",
-          isMobileOpen ? "translate-x-0 z-50" : "-translate-x-full"
+          "fixed inset-y-0 left-0 flex h-full w-64 flex-col border-r bg-white dark:bg-slate-900 shadow-2xl transition-transform duration-300 lg:translate-x-0 lg:shadow-none lg:z-0",
+          isSidebarOpen ? "translate-x-0 z-50" : "-translate-x-full"
         )}
       >
         {/* Logo/Header */}
@@ -84,7 +90,7 @@ export function Sidebar() {
                 <Link
                   key={item.name}
                   to={item.href}
-                  onClick={() => setIsMobileOpen(false)}
+                  onClick={closeSidebar}
                   className={cn(
                     "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                     isActive
@@ -115,7 +121,7 @@ export function Sidebar() {
                 <Link
                   key={item.name}
                   to={item.href}
-                  onClick={() => setIsMobileOpen(false)}
+                  onClick={closeSidebar}
                   className={cn(
                     "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                     isActive
@@ -162,11 +168,11 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* Mobile overlay */}
-      {isMobileOpen && (
+      {/* Click-outside area to close sidebar on mobile */}
+      {isSidebarOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm lg:hidden"
-          onClick={() => setIsMobileOpen(false)}
+          className="fixed inset-y-0 left-64 right-0 z-40 lg:hidden"
+          onClick={closeSidebar}
         />
       )}
     </>

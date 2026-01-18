@@ -26,12 +26,8 @@ CREATE TABLE IF NOT EXISTS affiliate_credentials (
 );
 
 -- Add platform-specific product identifiers to products table
-ALTER TABLE products ADD COLUMN amazon_asin TEXT;
-ALTER TABLE products ADD COLUMN tiktok_product_id TEXT;
-ALTER TABLE products ADD COLUMN instagram_product_id TEXT;
-ALTER TABLE products ADD COLUMN youtube_video_id TEXT;
-ALTER TABLE products ADD COLUMN pinterest_pin_id TEXT;
-ALTER TABLE products ADD COLUMN product_url TEXT;
+-- Note: ALTER TABLE ADD COLUMN statements are now handled individually in Rust code
+-- to gracefully handle cases where columns already exist (see schema.rs)
 
 -- Create index for quick ASIN lookups
 CREATE INDEX IF NOT EXISTS idx_products_amazon_asin ON products(amazon_asin);

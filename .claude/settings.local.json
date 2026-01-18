@@ -11,7 +11,13 @@
       "Bash(timeout 45 cmd /c \"type C:\\\\Users\\\\Ryan\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--afilai\\\\tasks\\\\b05b564.output\")",
       "Bash(timeout 45 cmd:*)",
       "Bash(timeout 10 cmd:*)",
-      "Bash(sqlite3 \"%APPDATA%\\\\com.affilai.dev\\\\affilai.db\" \"SELECT product_name, platform, program_name, commission_rate, audience_match_score FROM affiliate_links INNER JOIN \\(SELECT id, name FROM products\\) p ON affiliate_links.product_id = p.id LIMIT 10;\")"
+      "Bash(sqlite3 \"%APPDATA%\\\\com.affilai.dev\\\\affilai.db\" \"SELECT product_name, platform, program_name, commission_rate, audience_match_score FROM affiliate_links INNER JOIN \\(SELECT id, name FROM products\\) p ON affiliate_links.product_id = p.id LIMIT 10;\")",
+      "Bash(npm run build:*)",
+      "Bash(export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\")",
+      "Bash(/opt/homebrew/bin/npx tsc --noEmit)",
+      "Bash(export PATH=\"/opt/homebrew/bin:$PATH\")",
+      "Bash(node --version)",
+      "Bash(npx tsc:*)"
     ]
   }
 }
