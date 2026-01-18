@@ -400,7 +400,7 @@ pub async fn generate_ad_for_product(
          cta, ad_format, ad_type, platform_specific_data, performance_score)
          VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
         params![
-            0, // placeholder campaign_id for direct product ads
+            1, // default "Direct Product Ads" campaign (created in migration 007)
             product_id,
             variation_name,
             headline,

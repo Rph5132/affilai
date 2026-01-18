@@ -16,13 +16,16 @@ import {
   Sparkles,
   Loader2,
   RefreshCw,
-  Save,
+  Check,
   TrendingUp,
   Target,
   Lightbulb,
   ChevronDown,
+  History,
+  ChevronUp,
 } from "lucide-react";
-import { adApi, type AdType as ApiAdType, type AdGenerationResult } from "@/services/adApi";
+import { adApi, type AdType as ApiAdType, type AdGenerationResult, type GeneratedAdCopy } from "@/services/adApi";
+import { toast } from "sonner";
 
 // Ad type options - matches Rust backend
 const AD_TYPES = [
@@ -72,6 +75,8 @@ export function AdGenerationModal({
   const [generatedAd, setGeneratedAd] = useState<GeneratedAd | null>(null);
   const [apiResult, setApiResult] = useState<AdGenerationResult | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [savedAds, setSavedAds] = useState<GeneratedAdCopy[]>([]);
+  const [showSavedAds, setShowSavedAds] = useState(false);
 
   // Reset state when modal opens with a new product
   useEffect(() => {
@@ -80,9 +85,22 @@ export function AdGenerationModal({
       setCustomInstructions("");
       setMarketAnalysis(null);
       setApiResult(null);
+      setShowSavedAds(false);
       analyzeMarket();
+      loadSavedAds();
     }
   }, [open, product?.id]);
+
+  // Load previously saved ads for this product
+  const loadSavedAds = async () => {
+    if (!product || !product.id) return;
+    try {
+      const ads = await adApi.getForProduct(product.id);
+      setSavedAds(ads);
+    } catch (error) {
+      console.error("Error loading saved ads:", error);
+    }
+  };
 
   // Get market analysis by generating a preview ad
   const analyzeMarket = async () => {
@@ -102,14 +120,7 @@ export function AdGenerationModal({
       };
       setMarketAnalysis(analysis);
       setSelectedAdType(result.market_analysis.recommended_ad_type as AdType);
-
-      // Set the generated ad from the API response
-      setGeneratedAd({
-        headline: result.ad_copy.headline,
-        body: result.ad_copy.body_text || "",
-        cta: result.ad_copy.cta || "Shop Now",
-        adType: result.ad_copy.ad_type || result.market_analysis.recommended_ad_type,
-      });
+      // Don't auto-generate ad - wait for user to click "Generate Ad" button
     } catch (error) {
       console.error("Error analyzing market:", error);
       // Fallback to local analysis if API fails
@@ -177,8 +188,16 @@ export function AdGenerationModal({
         cta: result.ad_copy.cta || "Shop Now",
         adType: result.ad_copy.ad_type || selectedAdType,
       });
+      toast.success("Ad generated & saved!", {
+        description: "Your ad has been saved automatically.",
+      });
+      // Reload saved ads to include the new one
+      loadSavedAds();
     } catch (error) {
       console.error("Error generating ad:", error);
+      toast.error("Failed to generate ad", {
+        description: error instanceof Error ? error.message : "Please try again.",
+      });
     } finally {
       setIsGenerating(false);
     }
@@ -382,11 +401,64 @@ export function AdGenerationModal({
                     Regenerate
                   </Button>
                   <Button onClick={handleSave} className="flex-1">
-                    <Save className="mr-2 h-4 w-4" />
-                    Save Ad
+                    <Check className="mr-2 h-4 w-4" />
+                    Done
                   </Button>
                 </div>
               </CardContent>
+            </Card>
+          )}
+
+          {/* Saved Ads Section */}
+          {savedAds.length > 0 && (
+            <Card>
+              <CardHeader className="pb-3">
+                <button
+                  type="button"
+                  onClick={() => setShowSavedAds(!showSavedAds)}
+                  className="flex items-center justify-between w-full text-left"
+                >
+                  <div className="flex items-center gap-2 text-sm font-medium">
+                    <History className="h-4 w-4 text-muted-foreground" />
+                    Saved Ads ({savedAds.length})
+                  </div>
+                  {showSavedAds ? (
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </button>
+              </CardHeader>
+              {showSavedAds && (
+                <CardContent className="space-y-3 pt-0">
+                  {savedAds.map((ad) => (
+                    <div
+                      key={ad.id}
+                      className="p-3 rounded-lg bg-muted/50 space-y-2"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-sm truncate flex-1">
+                          {ad.headline}
+                        </span>
+                        <Badge variant="outline" className="ml-2 text-xs">
+                          {getAdTypeLabel(ad.ad_type || "social_post")}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground line-clamp-2">
+                        {ad.body_text}
+                      </p>
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span>CTA: {ad.cta}</span>
+                        <span>
+                          {ad.created_at
+                            ? new Date(ad.created_at).toLocaleDateString()
+                            : ""}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              )}
             </Card>
           )}
         </div>

@@ -22,7 +22,9 @@
       "Bash(ssh-keygen:*)",
       "Bash(pbcopy)",
       "Bash(git remote:*)",
-      "Bash(ssh:*)"
+      "Bash(ssh:*)",
+      "Bash(npm install:*)",
+      "Bash(/opt/homebrew/bin/npm install sonner --prefix /Users/ryan/affilai)"
     ]
   }
 }

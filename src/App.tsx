@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
+import { Toaster } from "@/components/ui/sonner";
 import { Dashboard } from "@/pages/Dashboard";
 import { Products } from "@/pages/Products";
 import { Links } from "@/pages/Links";
@@ -20,6 +21,7 @@ function App() {
           <Route path="/settings" element={<Settings />} />
         </Routes>
       </Layout>
+      <Toaster position="bottom-right" richColors />
     </BrowserRouter>
   );
 }

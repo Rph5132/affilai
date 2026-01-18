@@ -87,6 +87,8 @@ pub fn run_migrations(conn: &Connection) -> Result<()> {
 
         if seed_run {
             println!("✓ Seed data already populated");
+            // Still need to ensure default campaign exists
+            ensure_default_campaign(conn)?;
             return Ok(());
         }
     }
@@ -103,6 +105,41 @@ pub fn run_migrations(conn: &Connection) -> Result<()> {
 
     println!("✓ Seed data migration completed");
     println!("✓ Database initialized with 10 trending products");
+
+    // Create default campaign for direct product ads (007)
+    ensure_default_campaign(conn)?;
+
+    Ok(())
+}
+
+/// Creates a default campaign for direct product ads if it doesn't exist
+fn ensure_default_campaign(conn: &Connection) -> Result<()> {
+    // Check if default campaign already exists
+    let exists: bool = conn
+        .query_row(
+            "SELECT COUNT(*) > 0 FROM campaigns WHERE id = 1",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap_or(false);
+
+    if exists {
+        return Ok(());
+    }
+
+    // Use the first available product_id since campaigns.product_id is NOT NULL
+    let first_product_id: Option<i64> = conn
+        .query_row("SELECT id FROM products LIMIT 1", [], |row| row.get(0))
+        .ok();
+
+    if let Some(product_id) = first_product_id {
+        conn.execute(
+            "INSERT OR IGNORE INTO campaigns (id, name, product_id, platform, status, objective, notes)
+             VALUES (1, 'Direct Product Ads', ?1, 'multi', 'active', 'product_awareness', 'System campaign for ads generated directly from products')",
+            [product_id],
+        )?;
+        println!("✓ Default product ads campaign created");
+    }
 
     Ok(())
 }

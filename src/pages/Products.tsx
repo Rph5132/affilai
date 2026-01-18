@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, Search, Package, Edit, Trash2, TrendingUp, Sparkles } from "lucide-react";
 import { ProductForm } from "@/components/ProductForm";
 import { AdGenerationModal } from "@/components/AdGenerationModal";
+import { toast } from "sonner";
 
 export function Products() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -67,9 +68,14 @@ export function Products() {
     setAdModalOpen(true);
   };
 
+  const handleAdModalClose = (open: boolean) => {
+    setAdModalOpen(open);
+  };
+
   const handleAdSuccess = (ad: { headline: string; body: string; cta: string }) => {
-    console.log("Ad saved:", ad);
-    // TODO: Save ad to database or handle as needed
+    toast.success("Ad generated and saved!", {
+      description: `Headline: ${ad.headline.substring(0, 50)}${ad.headline.length > 50 ? "..." : ""}`,
+    });
   };
 
   return (
@@ -251,7 +257,7 @@ export function Products() {
       {/* Ad Generation Modal */}
       <AdGenerationModal
         open={adModalOpen}
-        onOpenChange={setAdModalOpen}
+        onOpenChange={handleAdModalClose}
         product={selectedProductForAd}
         onSuccess={handleAdSuccess}
       />
